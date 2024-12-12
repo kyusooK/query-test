@@ -1,37 +1,67 @@
-### Setup Instructions
+# inventory
 
-### 1. Configure Redis Password
-Configure Redis settings in your microservice's `application.yml`:
+## Running in local development environment
 
-```yaml
-spring:
-  redis:
-    host: localhost
-    port: 6379
-    password: your_redis_password # Remove this line if no password is required
 ```
-
-### 2. Start Redis Server
-Launch Redis using Docker:
-
-```bash
-docker run --name redis -d -p 6379:6379 redis
-```
-
-### 3. Start Microservice
-```
-cd <microservice>
 mvn spring-boot:run
 ```
 
-### 4. Access Redis CLI
+## Packaging and Running in docker environment
+
 ```
-docker exec -it redis redis-cli
+mvn package -B -DskipTests
+docker build -t username/inventory:v1 .
+docker run username/inventory:v1
 ```
 
-### 5. Test Redis
-```
-redis-cli > ping // Test Redis connection, returns PONG if connection is successful.
+## Push images and running in Kubernetes
 
-redis-cli > monitor // Real-time monitoring of session creation and sharing between service calls.
 ```
+docker login 
+# in case of docker hub, enter your username and password
+
+docker push username/inventory:v1
+```
+
+Edit the deployment.yaml under the /kubernetes directory:
+```
+    spec:
+      containers:
+        - name: inventory
+          image: username/inventory:latest   # change this image name
+          ports:
+            - containerPort: 8080
+
+```
+
+Apply the yaml to the Kubernetes:
+```
+kubectl apply -f kubernetes/deployment.yaml
+```
+
+See the pod status:
+```
+kubectl get pods -l app=inventory
+```
+
+If you have no problem, you can connect to the service by opening a proxy between your local and the kubernetes by using this command:
+```
+# new terminal
+kubectl port-forward deploy/inventory 8080:8080
+
+# another terminal
+http localhost:8080
+```
+
+If you have any problem on running the pod, you can find the reason by hitting this:
+```
+kubectl logs -l app=inventory
+```
+
+Following problems may be occurred:
+
+1. ImgPullBackOff:  Kubernetes failed to pull the image with the image name you've specified at the deployment.yaml. Please check your image name and ensure you have pushed the image properly.
+1. CrashLoopBackOff: The spring application is not running properly. If you didn't provide the kafka installation on the kubernetes, the application may crash. Please install kafka firstly:
+
+https://labs.msaez.io/#/courses/cna-full/full-course-cna/ops-utility
+

@@ -46,6 +46,16 @@
 
                     <v-list-item
                         class="px-2"
+                        key="getOrders"
+                        to="/orders/getOrders"
+                        @click="changeUrl()"
+                        color="primary"
+                        style="font-weight:700;"
+                    >
+                        GetOrder
+                    </v-list-item>
+                    <v-list-item
+                        class="px-2"
                         key="inventories"
                         to="/inventories/inventories"
                         @click="changeUrl()"
@@ -166,6 +176,13 @@ export default {
                 description: 'Inventory을 관리하는 화면입니다.', 
                 key: 'inventories', 
                 route: '/inventories/inventories',
+                ImageUrl: '',
+            },
+            { 
+                title: 'GetOrder', 
+                description: 'getOrder을 관리하는 화면입니다.', 
+                key: 'getOrders', 
+                route: '/orders/getOrders',
                 ImageUrl: '',
             },
             { 
